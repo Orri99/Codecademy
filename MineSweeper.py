@@ -46,30 +46,30 @@ def generate_numbers(grid, height, length, bombs):
 				if x == 0 and y == 0:
 					grid[x][y] = bombs.count([0, 1]) + bombs.count([1, 0]) + bombs.count([1, 1])
 
-				elif x == 0 and y == 15:
-					grid[x][y] = bombs.count([0, 14]) + bombs.count([1, 14]) + bombs.count([1, 15])
+				elif x == 0 and y == length-1:
+					grid[x][y] = bombs.count([0, length-2]) + bombs.count([1, length-2]) + bombs.count([1, length-1])
 
-				elif x == 15 and y == 0:
-					grid[x][y] = bombs.count([14, 0]) + bombs.count([14, 1]) + bombs.count([15, 1])
+				elif x == height-1 and y == 0:
+					grid[x][y] = bombs.count([height-2, 0]) + bombs.count([height-2, 1]) + bombs.count([height-1, 1])
 
-				elif x == 15 and y == 15:
-					grid[x][y] = bombs.count([14, 14]) + bombs.count([15, 14]) + bombs.count([14, 15])
+				elif x == height-1 and y == length-1:
+					grid[x][y] = bombs.count([height-2, length-2]) + bombs.count([height-1, length-2]) + bombs.count([height-2, length-1])
 
 				# Next the edges
 				elif x == 0:
 					for x2 in range(x-1, x+2):
 						for y2 in range(y, y+2):
 
-							if x2 != x and y2 != y and [x2, y2] in bombs:
+							if [x2, y2] in bombs:
 								count += 1
 
 					grid[x][y] = count
 
-				elif x == 15:
+				elif x == height-1:
 					for x2 in range(x-1, x+2):
 						for y2 in range(y-1, y+1):
 
-							if x2 != x and y2 != y and [x2, y2] in bombs:
+							if [x2, y2] in bombs:
 								count += 1
 
 					grid[x][y] = count
@@ -78,29 +78,30 @@ def generate_numbers(grid, height, length, bombs):
 					for x2 in range(x, x+2):
 						for y2 in range(y-1, y+2):
 
-							if x2 != x and y2 != y and [x2, y2] in bombs:
+							if [x2, y2] in bombs:
 								count += 1
 
 					grid[x][y] = count
 
-				elif y == 15:
+				elif y == length-1:
 					for x2 in range(x-1, x+1):
 						for y2 in range(y-1, y+2):
 
-							if x2 != x and y2 != y and [x2, y2] in bombs:
+							if [x2, y2] in bombs:
 								count += 1
 
 					grid[x][y] = count
 
 				# Lastly everything else
-			else:
-				for x2 in range(x-1, x+2):
-					for y2 in range(y-1, y+2):
+				else:
+					for x2 in range(x-1, x+2):
+						for y2 in range(y-1, y+2):
 
-						if x2 != x and y2 != y and [x2, y2] in bombs:
-							count += 1
+							if [x2, y2] in bombs:
+								count += 1
 
-				grid[x][y] = count
+
+					grid[x][y] = count
 
 	return grid
 
@@ -119,6 +120,7 @@ def click(grid, shown, coordinates, bombs):
 	y_cord = letters.index(coordinates[0])
 
 	clicked = grid[x_cord][y_cord]
+	clicked_shown = shown[x_cord][y_cord]
 	if len(coordinates) == 8:
 		
 		temp = list(shown[x_cord])
@@ -130,7 +132,7 @@ def click(grid, shown, coordinates, bombs):
 			shown[x_cord] = "".join(temp)
 		return shown
 
-	elif clicked == 9:
+	elif clicked == 9 and clicked_shown != "F":
 
 		for bomb in bombs:
 			temp = list(shown[bomb[0]])
@@ -140,6 +142,13 @@ def click(grid, shown, coordinates, bombs):
 			global game
 			game = False
 
+		return shown
+
+	elif clicked_shown != "F":
+
+		temp = list(shown[x_cord])
+		temp[y_cord] = str(clicked)
+		shown[x_cord] = "".join(temp)
 		return shown
 
 	else:
@@ -178,8 +187,9 @@ while game:
 		board = [([0]*length) for i in range(height)]
 		revealed  = [("."*length) for i in range(height)]
 		board, bombs = place_bombs(board, height, length, 40)
+		board = generate_numbers(board, height, length, bombs)
 		
-		#print(bombs[0])
+		print(bombs[0])
 		print("\n" * 5)
 		print("#>" + letters[:length] + "<#")
 		print("$+" + "-"*(length) + "+$")
