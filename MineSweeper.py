@@ -14,11 +14,27 @@ import random
 
 game = True
 game_setup = True
+victory = False
 
-letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+class Grid:
+	def __init__(self, height, width, fill=[0]):
+
+		self.height = height
+		self.width = width
+		self.matrix = [(fill*width) for i in range(height)]
+		self.letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+	def print_grid(self):
+
+		print("#>" + self.letters[:self.width] + "<#")
+		print("$+" + "-"*(self.width) + "+$")
+		for i in range(self.height):
+			print(self.letters[i] + "|" + str(self.matrix[i]) + "|" + self.letters[i])
+		print(f"$+" + "-"*(self.width) + "+$")
+		print("#>" + self.letters[:self.width] + "<#")
 
 
-def place_bombs(grid, height, length, num_bombs):
+def place_bombs(grid, num_bombs):
 
 	bombs = []
 
@@ -29,83 +45,32 @@ def place_bombs(grid, height, length, num_bombs):
 		if [x, y] not in bombs:
 
 			bombs.append([x, y])
-			grid[x][y] = 9
+			grid.matrix[x][y] = 9
 
 	return grid, bombs;
 
-def generate_numbers(grid, height, length, bombs):
+def generate_numbers(grid, bombs):
+
+	height = grid.height
+	width = grid.width
 
 	for x in range(0,height):
-		for y in range(0, length):
+		for y in range(0, width):
 
 			count = 0
-
-			if [x, y] not in bombs:
-
-				# First the corners
-				if x == 0 and y == 0:
-					grid[x][y] = bombs.count([0, 1]) + bombs.count([1, 0]) + bombs.count([1, 1])
-
-				elif x == 0 and y == length-1:
-					grid[x][y] = bombs.count([0, length-2]) + bombs.count([1, length-2]) + bombs.count([1, length-1])
-
-				elif x == height-1 and y == 0:
-					grid[x][y] = bombs.count([height-2, 0]) + bombs.count([height-2, 1]) + bombs.count([height-1, 1])
-
-				elif x == height-1 and y == length-1:
-					grid[x][y] = bombs.count([height-2, length-2]) + bombs.count([height-1, length-2]) + bombs.count([height-2, length-1])
-
-				# Next the edges
-				elif x == 0:
-					for x2 in range(x-1, x+2):
-						for y2 in range(y, y+2):
-
+			if [x, y] not in bombs:	
+				for x2 in range(x-1, x+2):
+					for y2 in range(y-1, y+2):
+						if x2 in range(0,height) and y2 in range(0, width):
 							if [x2, y2] in bombs:
 								count += 1
 
-					grid[x][y] = count
-
-				elif x == height-1:
-					for x2 in range(x-1, x+2):
-						for y2 in range(y-1, y+1):
-
-							if [x2, y2] in bombs:
-								count += 1
-
-					grid[x][y] = count
-
-				elif y == 0:
-					for x2 in range(x, x+2):
-						for y2 in range(y-1, y+2):
-
-							if [x2, y2] in bombs:
-								count += 1
-
-					grid[x][y] = count
-
-				elif y == length-1:
-					for x2 in range(x-1, x+1):
-						for y2 in range(y-1, y+2):
-
-							if [x2, y2] in bombs:
-								count += 1
-
-					grid[x][y] = count
-
-				# Lastly everything else
-				else:
-					for x2 in range(x-1, x+2):
-						for y2 in range(y-1, y+2):
-
-							if [x2, y2] in bombs:
-								count += 1
-
-
-					grid[x][y] = count
+				grid.matrix[x][y] = count
 
 	return grid
 
 def check_input(inp):
+	letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	if len(inp) == 3: 
 		if inp[1] == "," and inp[0] in letters and inp[2] in letters:
 			return True
@@ -114,90 +79,88 @@ def check_input(inp):
 			return True
 	return False
 
-def click(grid, shown, height, length, coordinates, bombs):
+def change_square(shown, coords, new):
 
-	x_cord = letters.index(coordinates[0])
-	y_cord = letters.index(coordinates[2])
+	temp = list(shown.matrix[coords[0]])
+	temp[coords[1]] = str(new)
+	shown.matrix[coords[0]] = "".join(temp)
+	return shown
 
-	clicked = grid[x_cord][y_cord]
-	clicked_shown = shown[x_cord][y_cord]
+def click(grid, shown, coordinates, bombs):
+
+	height = grid.height
+	width = grid.width
+
+	x_coord = grid.letters.index(coordinates[0])
+	y_coord = grid.letters.index(coordinates[2])
+
+	clicked = grid.matrix[x_coord][y_coord]
+	clicked_shown = shown.matrix[x_coord][y_coord]
+
 	if len(coordinates) == 8:
 		
-		temp = list(shown[x_cord])
-		if shown[x_cord][y_cord] == "F":
-			temp[y_cord] = "."
-			shown[x_cord] = "".join(temp)
-		elif shown[x_cord][y_cord] ==".":
-			temp[y_cord] = "F"
-			shown[x_cord] = "".join(temp)
-		return shown
+		if shown.matrix[x_coord][y_coord] == "F":
+			shown = change_square(shown,[x_coord,y_coord],".")
+		elif shown.matrix[x_coord][y_coord] ==".":
+			shown = change_square(shown,[x_coord,y_coord],"F")
 
 	elif clicked == 9 and clicked_shown != "F":
 
 		for bomb in bombs:
-			temp = list(shown[bomb[0]])
-			temp[bomb[1]] = "X"
-			shown[bomb[0]] = "".join(temp)
 
-			global game
-			game = False
+			shown = change_square(shown, bomb, "X")
 
-		return shown
+		global game
+		game = False
 
 	elif clicked == 0 and clicked_shown != "F": 
+		
+		shown = change_square(shown, [x_coord,y_coord], "*")
+		checking = True
+		while checking:
 
-		blanks = [[x_cord, y_cord]]
-		for cords in blanks:
+			count = 0
+			for x in range(0,height):
+				for y in range(0, width):
 
-			for x in range(x_cord-1,x_cord+2):
-				for y in range(y_cord-1,y_cord+2):
-
-					if x >= 0 and x < height and y >= 0 and y < length:
-
-						if shown[x][y] == ".":
-							if grid[x][y] == 0:
-
-								temp = list(shown[x])
-								temp[y] = "*"
-								shown[x] = "".join(temp)
-
-								if [x, y] not in blanks:
-		 							blanks.append([x, y])
-
-							else:
-								temp = list(shown[x])
-								temp[y] = str(grid[x][y])
-								shown[x] = "".join(temp)
-		return shown
-		 					
-
+					if shown.matrix[x][y] == "*":	
+						for x2 in range(x-1, x+2):
+							for y2 in range(y-1, y+2):
+								if x2 in range(0,height) and y2 in range(0, width):
+								
+									if shown.matrix[x2][y2] == ".":
+										count += 1
+										if grid.matrix[x2][y2] == 0:
+											shown = change_square(shown, [x2,y2], "*")
+										else:
+											shown = change_square(shown, [x2,y2], grid.matrix[x2][y2])
+			print(count)
+			shown.print_grid()
+			if count == 0:
+				checking = False						
 
 
 	elif clicked_shown != "F":
 
-		temp = list(shown[x_cord])
-		temp[y_cord] = str(clicked)
-		shown[x_cord] = "".join(temp)
-		return shown
+		shown = change_square(shown, [x_coord,y_coord], clicked)
 
+	return shown
+
+def check_if_victory(shown, num_bombs):
+
+	count = 0
+	for x in range(0, shown.height):
+		for y in range(0, shown.width):		
+
+			if shown.matrix[x][y] == "."  or shown.matrix[x][y] == "F":
+				count += 1
+	if count == num_bombs:
+		global game
+		game = False
+		return True
 	else:
-
-		return shown
-
-def print_game(shown, height, length, check):
-
-
-	print("#>" + letters[:length] + "<#")
-	print("$+" + "-"*(length) + "+$")
-	for i in range(height):
-		print(letters[i] + "|" + shown[i] + "|" + letters[i])
-	print(f"$+" + "-"*(length) + "+$")
-	print("#>" + letters[:length] + "<#")
-	if check:
-		print("Input coordinates below (A,B) to click, (A,B,Flag) to place/remove Flag")
-	else:
-		print("Coordinates needs to be two uppercase letters seperated by a comma!              ")
-
+		return False
+		
 ### Main Loop ###
 
 while game:
@@ -205,21 +168,16 @@ while game:
 	if game_setup:
 	
 		height = 16
-		length = 16
+		width = 16
+		number_of_bombs = 40
 
-		board = [([0]*length) for i in range(height)]
-		revealed  = [("."*length) for i in range(height)]
-		board, bombs = place_bombs(board, height, length, 40)
-		board = generate_numbers(board, height, length, bombs)
+		board = Grid(height,width)
+		revealed  = Grid(height,width,".")
+		board, bombs = place_bombs(board, number_of_bombs)
+		board = generate_numbers(board, bombs)
 		
-		print(bombs[0])
-		print("\n" * 5)
-		print("#>" + letters[:length] + "<#")
-		print("$+" + "-"*(length) + "+$")
-		for i in range(height):
-			print(letters[i] + "|" + revealed[i] + "|" + letters[i])
-		print(f"$+" + "-"*(length) + "+$")
-		print("#>" + letters[:length] + "<#")
+		board.print_grid()
+		revealed.print_grid()
 		print("Input coordinates below (A,B) to click, (A,B,Flag) to place/remove Flag")
 		game_setup = False
 
@@ -227,13 +185,16 @@ while game:
 
 	if check_input(coordinates.upper()):
 
-		revealed = click(board, revealed, height, length, coordinates.upper(), bombs)
-		print_game(revealed, height, length, True)
-
-	else:	
-		print_game(revealed, height, length, False)
-
-
+		revealed = click(board, revealed, coordinates.upper(), bombs)
+		revealed.print_grid()
+		print("Input coordinates below (A,B) to click, (A,B,Flag) to place/remove Flag")
+		victory = check_if_victory(revealed,number_of_bombs)
+		
+	else:
+		print("Coordinates needs to be two uppercase letters seperated by a comma!")
 
 print("\n")
-print("GAME OVER")
+if victory:
+	print("Victory! B-)")
+else:
+	print("GAME OVER")
