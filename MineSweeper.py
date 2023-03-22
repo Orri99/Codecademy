@@ -114,10 +114,10 @@ def check_input(inp):
 			return True
 	return False
 
-def click(grid, shown, coordinates, bombs):
+def click(grid, shown, height, length, coordinates, bombs):
 
-	x_cord = letters.index(coordinates[2])
-	y_cord = letters.index(coordinates[0])
+	x_cord = letters.index(coordinates[0])
+	y_cord = letters.index(coordinates[2])
 
 	clicked = grid[x_cord][y_cord]
 	clicked_shown = shown[x_cord][y_cord]
@@ -144,6 +144,35 @@ def click(grid, shown, coordinates, bombs):
 
 		return shown
 
+	elif clicked == 0 and clicked_shown != "F": 
+
+		blanks = [[x_cord, y_cord]]
+		for cords in blanks:
+
+			for x in range(x_cord-1,x_cord+2):
+				for y in range(y_cord-1,y_cord+2):
+
+					if x >= 0 and x < height and y >= 0 and y < length:
+
+						if shown[x][y] == ".":
+							if grid[x][y] == 0:
+
+								temp = list(shown[x])
+								temp[y] = "*"
+								shown[x] = "".join(temp)
+
+								if [x, y] not in blanks:
+		 							blanks.append([x, y])
+
+							else:
+								temp = list(shown[x])
+								temp[y] = str(grid[x][y])
+								shown[x] = "".join(temp)
+		return shown
+		 					
+
+
+
 	elif clicked_shown != "F":
 
 		temp = list(shown[x_cord])
@@ -157,19 +186,13 @@ def click(grid, shown, coordinates, bombs):
 
 def print_game(shown, height, length, check):
 
-	back = "\033[F"
-	# This line is to clear the input line 
-	print(f"""{back}                           """)
 
-	back = "\033[F" * (height + 8)
-
-	print(f"""{back}
-#>""" + letters[:length] + "<#")
+	print("#>" + letters[:length] + "<#")
 	print("$+" + "-"*(length) + "+$")
 	for i in range(height):
 		print(letters[i] + "|" + shown[i] + "|" + letters[i])
 	print(f"$+" + "-"*(length) + "+$")
-	print("#>" + letters[:length] + "<#                            ")
+	print("#>" + letters[:length] + "<#")
 	if check:
 		print("Input coordinates below (A,B) to click, (A,B,Flag) to place/remove Flag")
 	else:
@@ -204,7 +227,7 @@ while game:
 
 	if check_input(coordinates.upper()):
 
-		revealed = click(board, revealed, coordinates.upper(), bombs)
+		revealed = click(board, revealed, height, length, coordinates.upper(), bombs)
 		print_game(revealed, height, length, True)
 
 	else:	
