@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>    
+        <link rel="stylesheet" href="{% static 'inventory/base_style.css' %}"/>
+        <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" type="image/x-icon">
+    </head>
+    <body>
+        <header class="page-header" >   
+            <div class="container">
+                <h1><a href="{% url 'menu' %}" class="nav-link1">Menu</a></h1>
+                <h1><a href="{% url 'ingr' %}" class="nav-link2">Ingredients</a></h1>
+                <h1><a href="{% url 'recipe' %}" class="nav-link3">Recipies</a></h1>
+                <h1><a href="{% url 'purch' %}" class="nav-link4">Purchases</a></h1>
+            </div>
+        </header>
+        {% block content%}
+        {% endblock %}
+    </body>
+</html>
