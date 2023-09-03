@@ -3,8 +3,22 @@ from django.db import models
 # Create your models here.
 
 class MenuItem(models.Model):
+    appetizer = "APET"
+    maincourse = "MAIN"
+    dessert = "DSRT"
+    side = "SIDE"
+    drink = "DRNK"
+    ITEM_CHOICES = [
+        (appetizer, "Appetizer"),
+        (maincourse, "Main Course"),
+        (dessert, "Dessert"),
+        (side, "Side"),
+        (drink, "Drink"),
+    ]
+
     menuitemName = models.CharField(max_length=50,verbose_name="Menu Item")
     menuitemPrice = models.FloatField(default=20.0, verbose_name="Price")
+    menuitemCategory = models.CharField(max_length=4, choices=ITEM_CHOICES,default=drink)
 
     def __str__(self):
         return '{}'.format(self.menuitemtName)
@@ -23,3 +37,24 @@ class Ingredient(models.Model):
     
     def get_absolute_url(self):
         return "/ingr/"
+    
+class RecipeRequirement(models.Model):
+    menu_item = models.ForeignKey(MenuItem, verbose_name="Menu Item", on_delete=models.CASCADE)
+    ingredient = models.ForeignKey(Ingredient, verbose_name="Ingredient", on_delete=models.CASCADE)
+    quantity = models.FloatField(default=0, verbose_name="Price")
+
+    def __str__(self):
+        return 'Amount of {} in {}'.format(self.menu_item.menuitemName, self.ingredient.ingredientName)
+    
+    def get_absolute_url(self):
+        return "/recreq/"
+    
+class Purchase(models.Model):
+    menu_item = models.ForeignKey(MenuItem, verbose_name="Menu item", on_delete=models.PROTECT)
+    timestamp = models.DateTimeField(verbose_name="Timestamp", null=True)
+
+    def __str__(self):
+        return 'Purchase of {}'.format(self.menu_item.menuitemName)
+    
+    def get_absolute_url(self):
+        return "/purch/"
