@@ -4,4 +4,27 @@
 {% endblock %}
 
 {% block content %}
+<h1><a href="{% url 'recipecreate' %}">Add a Recipe requirement</a></h1>
+<div> 
+  <table>
+    <tr>
+      <th>Menu Item</th>
+      <th>Ingredient</th>
+      <th>Quantity</th>
+      <th>Unit</th>
+      <th> </th>
+      <th> </th>
+    </tr>
+    {% for item in recreq|dictsort:'menu_item.menuitemName' %}
+    <tr>
+      <td>{{ item.menu_item.menuitemName }}</td>
+      <td>{{ item.ingredient.ingredientName }}</td>
+      <td>{{ item.quantity }}</td>
+      <td>{{ item.ingredient.ingredientUnit }}</td>
+      <td><a href="{% url 'recipeupdate' item.id %}"><button>Edit</button></a></td>
+      <td><a href="{% url 'recipedelete' item.id %}"><button>Delete</button></a></td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
 {% endblock %}

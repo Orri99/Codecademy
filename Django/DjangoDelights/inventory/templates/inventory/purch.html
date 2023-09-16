@@ -4,4 +4,18 @@
 {% endblock %}
 
 {% block content %}
+<div> 
+    <table>
+      <tr>
+        <th>Menu Item</th>
+        <th>Time of purchase</th>
+      </tr>
+      {% for purchase in purchases|dictsort:'timestamp' %}
+      <tr>
+        <td>{{ purchase.menu_item }}</td>
+        <td>{{ purchase.timestamp }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
 {% endblock %}

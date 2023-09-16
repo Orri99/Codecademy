@@ -1,7 +1,21 @@
 {% extends 'inventory/base.html' %}
+<!DOCTYPE html>
+<html>
+  {% block head %}
+  {% endblock %}
 
-{% block head %}
-{% endblock %}
-
-{% block content %}
-{% endblock %}
+  <body>
+    {% block content %}
+    <div class="menu-page">
+      <h2> Menu </h2>
+      {% for item in menuitems|dictsort:'menuitemName' %}
+        <div class="menu-item">
+          <span><a href="{% url 'purchaseitem' item.id %}">{{ item.menuitemName }}</a></span>
+          <span>{{ item.menuitemPrice }}$</span>
+        </div>
+      {% endfor %}
+    </div>
+    {% endblock %}
+    
+  </body>
+</html>

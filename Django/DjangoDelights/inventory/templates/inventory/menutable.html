@@ -1,0 +1,28 @@
+{% extends 'inventory/base.html' %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<h1><a href="{% url 'menuitemcreate' %}">Add a Menu item</a></h1>
+<div> 
+  <table>
+    <tr>
+      <th>Name</th>
+      <th>Price</th>
+      <th>Category</th>
+      <th> </th>
+      <th> </th>
+    </tr>
+    {% for item in menuitems|dictsort:'menuitemName' %}
+    <tr>
+      <td>{{ item.menuitemName }}</td>
+      <td>{{ item.menuitemPrice }}</td>
+      <td>{{ item.menuitemCategory }}</td>
+      <td><a href="{% url 'menuitemupdate' item.id %}"><button>Edit</button></a></td>
+      <td><a href="{% url 'menuitemdelete' item.id %}"><button>Delete</button></a></td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}
