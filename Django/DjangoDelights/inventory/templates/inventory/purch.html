@@ -7,6 +7,19 @@
 <div> 
     <table>
       <tr>
+        <th>Total Revenue</th>
+        <th>Total Profit</th>
+      </tr>
+      <tr>
+        <td>{{ revenue }}</td>
+        <td>{{ profit }}</td>
+      </tr>
+    </table>
+</div>
+<h1> List of all purchases:</h1>
+<div> 
+    <table>
+      <tr>
         <th>Menu Item</th>
         <th>Time of purchase</th>
       </tr>
@@ -17,5 +30,5 @@
       </tr>
       {% endfor %}
     </table>
-  </div>
+</div>
 {% endblock %}

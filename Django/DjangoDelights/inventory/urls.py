@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 urlpatterns = [
@@ -6,9 +6,9 @@ urlpatterns = [
   path("menutable/", views.menutable, name="menutable"),
   path("ingr/", views.ingr, name="ingr"),
   path("recipe/", views.recipe, name="recipe"),
-  path("purch/", views.purch, name="purch"),
   path("purchasesuccess/",views.purchasesuccess, name = "purchasesuccess"),
   path("purchasefailure/",views.purchasefailure, name = "purchasefailure"),
+  path("purch/", views.Purch.as_view(), name="purch"),
   path("menuitem/create",views.MenuItemCreate.as_view(),name="menuitemcreate"),
   path("menuitem/update/<pk>",views.MenuItemUpdate.as_view(),name="menuitemupdate"),
   path("menuitem/delete/<pk>",views.MenuItemDelete.as_view(),name="menuitemdelete"),
@@ -19,4 +19,6 @@ urlpatterns = [
   path("recipe/update/<pk>",views.RecipeUpdate.as_view(),name="recipeupdate"),
   path("recipe/delete/<pk>",views.RecipeDelete.as_view(),name="recipedelete"),
   path("purchaseitem/<pk>",views.PurchaseItem.as_view(),name="purchaseitem"),
+  path("account/", include("django.contrib.auth.urls"), name="login"),
+  path("logout/", views.logout_request, name ="logout"),
 ]

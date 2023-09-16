@@ -14,6 +14,9 @@ html {
         color: black;
         font-family: "Lucida Handwriting", cursive;
     }
+    h3 {
+        color: white;
+    }
     
     .page-header {
         background-color: #244b8c;
@@ -69,4 +72,32 @@ html {
         display: flex;
         justify-content: space-between;
         padding: 20px;
+    }
+    .login-box {
+        background-color: white;
+        width:40%;
+        margin: auto;
+        padding: 10px;
+        border: 10px solid #FFF500;
+        box-shadow: 2px 2px 12px 1px rgba(140,140,140,.5);
+        border-radius: 10px;
+        margin-top: 100px;
+    }
+    .logout-button {
+        color: white;
+        background-color: #a0bfd3;
+        border-radius: 3px;
+        text-decoration: none;
+        position: absolute;
+        top: 50px;
+        right: 15px;
+        height: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .user-name {
+        position: absolute;
+        top: 2px;
+        right: 15px;
     }

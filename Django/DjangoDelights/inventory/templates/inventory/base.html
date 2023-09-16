@@ -7,11 +7,20 @@
     </head>
     <body>
         <header class="page-header" >   
+            {% if user.is_authenticated %}
+                <h3 class="user-name">User: {{ user.username }}</h3>
+            {% endif %}
             <div class="container">
                 <h1><a href="{% url 'menu' %}" class="nav-link1">Menu</a></h1>
                 <h1><a href="{% url 'ingr' %}" class="nav-link2">Ingredients</a></h1>
                 <h1><a href="{% url 'purch' %}" class="nav-link4">Purchases</a></h1>
+                {% if user.is_authenticated %}
+                    <a class="logout-button" href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                    <a class="logout-button" href="{% url 'login' %}">Login</a>
+                {% endif %}
             </div>
+
         </header>
         {% block content%}
         {% endblock %}
