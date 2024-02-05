@@ -4,6 +4,9 @@ class Node:
         self.value = value
         self.next_node = next_node
 
+    def get_value(self):
+        return self.value
+
     def set_next_node(self, next_node):
         self.next_node = next_node
     
@@ -31,10 +34,26 @@ class LinkedList:
                     current_node = next_node
 
     def insert(self, new_node):
+        if self.head_node.value is None:
+            self.head_node = new_node
+            return
+        
         current_node = self.head_node
-
         while current_node.next_node != None:
             current_node = current_node.next_node
 
         current_node.set_next_node(new_node)
-        
+
+    def __iter__(self):
+        iter_node = self.head_node
+        if iter_node.value is None:
+            return StopIteration
+        else:
+            yield iter_node.get_value()
+            iter_node = iter_node.next_node   
+    
+#myList = LinkedList([1,2])
+#myList.insert(Node([3,4]))
+#myList.insert(Node([5,6]))
+#myList.insert(Node([7,8]))
+#myList.insert(Node([9,10]))
