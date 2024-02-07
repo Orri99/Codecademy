@@ -30,6 +30,6 @@ class Hashmap:
                 return item[1]
 
 
-#testMap = Hashmap(10)
-#testMap.assign("Title","Text")
-#print(testMap.array[4].head_node.get_value())
+testMap = Hashmap(10)
+testMap.assign("Title","Text")
+print(testMap.retrieve("title"))
