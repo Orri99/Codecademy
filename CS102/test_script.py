@@ -1,7 +1,6 @@
 
-a  = input("Type: ")
-try:
-    a = int(a)
-    print(f"Works: {a}")
-except:
-    print(f"Failed: {a}")
+import math
+
+a = 74
+print(a)
+print(math.ceil(a/10))

@@ -1,6 +1,7 @@
 import csv
+import math
 from hashmap import Hashmap
-from prints import newline, starting_message
+from prints import newline, starting_message, list_page
 
 hashedBooks = Hashmap(10000) # Number picked arbitrarily
 hashedAuthors = Hashmap(10000)
@@ -48,26 +49,40 @@ def search_for_item(hashed_data, data_list, searched_item):
             print("No results found.")
             searching = keep_searching()
         
-        elif len(possible_items) <= 10:
+        else: #len(possible_items) <= 10:
             newline()
-            print("A few results were found:")
-            for index in range(len(possible_items)):
-                print(str(index+1) + ". " + possible_items[index])
-            newline()
-            user_input = input(f"If any of these results are the {searched_item} you are looking for,\nor if any of them interest you please type their corresponding number,\nif not type anything else: ")
-            try:
-                selected = int(user_input)
-                if selected < len(possible_items):
-                    return hashed_data.retrieve(possible_items[selected-1])
-            except:
-                newline()
-                print("It seems that did not result in what you were looking for.")
-            searching = keep_searching()
+            if len(possible_items) == 1:
+                print("One result was found;")
+            else:
+                print("A few results were found:")
 
-        else:
-            newline()
-            print("That search term was a bit vague, please try to be a bit more specifc.")
-            searching = keep_searching()
+            print(f"Number of results: {len(possible_items)}")
+
+            number_of_pages = math.ceil(len(possible_items)/10)
+            current_page = 1
+
+            selecting_result = True
+            while selecting_result:
+            
+                user_input = list_page(possible_items[10*(current_page-1):10*(current_page)], current_page, number_of_pages, searched_item)
+                try:
+                    selected = int(user_input)
+                    if selected < len(possible_items):
+                        return hashed_data.retrieve(possible_items[selected-1])
+                    else:
+                        newline()
+                        print("It seems that did not result in what you were looking for.")
+                        searching = keep_searching()
+                except:
+                    if current_page < number_of_pages and user_input == "next":
+                        current_page += 1
+                    elif current_page > 1 and user_input == "back":
+                        current_page -= 1
+                    else:
+                        newline()
+                        print("It seems that did not result in what you were looking for.")
+                        searching = keep_searching()
+
 
 starting_message()
 
@@ -79,8 +94,6 @@ with open('books_1.Best_Books_ever.csv', encoding="utf8") as books_csv:
         
         hashedBooks.assign(book["title"], book)
         searchListBooks.add(book["title"])
-        #if book["title"] not in searchListBooks:
-            #searchListBooks.append(book["title"])
         
         title_and_rating = [book["title"], book["rating"]]
 
@@ -89,10 +102,12 @@ with open('books_1.Best_Books_ever.csv', encoding="utf8") as books_csv:
             books_by_author = []
 
         books_by_author.append(title_and_rating)
-        hashedAuthors.assign(book["author"],books_by_author)
+        try:
+            hashedAuthors.assign(book["author"],books_by_author)
+        except:
+            print("Failed")
+
         searchListAuthors.add(book["author"])
-        #if book["author"] not in searchListAuthors:
-        #    searchListAuthors.append(book["author"])
 
         for genre in book["genres"]:
             if genre != "":
@@ -103,8 +118,6 @@ with open('books_1.Best_Books_ever.csv', encoding="utf8") as books_csv:
                 books_in_genre.append(title_and_rating)
                 hashedGenres.assign(genre,books_in_genre)
                 searchListGenres.add(genre)
-                #if genre not in searchListGenres:
-                #    searchListGenres.append(genre)
 
 searchListBooks = list(searchListBooks)
 searchListAuthors = list(searchListAuthors)
@@ -116,9 +129,11 @@ user_active = True
 
 while user_active:
     if user_input == "book title":
-        pass
+        print(search_for_item(hashedBooks, searchListBooks, "book title"))
+        user_active = keep_searching()
     elif user_input == "author":
-        pass
+        print(search_for_item(hashedAuthors, searchListAuthors, "author/s"))
+        user_active = keep_searching()
     elif user_input == "genre":
         print(search_for_item(hashedGenres, searchListGenres, "genre"))
         user_active = keep_searching()

@@ -48,7 +48,7 @@ class LinkedList:
         iter_node = self.head_node
         if iter_node.value is None:
             return StopIteration
-        else:
+        while(iter_node):
             yield iter_node.get_value()
             iter_node = iter_node.next_node   
     
@@ -57,3 +57,6 @@ class LinkedList:
 #myList.insert(Node([5,6]))
 #myList.insert(Node([7,8]))
 #myList.insert(Node([9,10]))
+
+#for item in myList:
+#    print(item)
