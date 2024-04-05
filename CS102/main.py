@@ -29,7 +29,7 @@ def keep_searching(first_loop = True):
     else:
         return keep_searching(False)
 
-def search_for_item(hashed_data, data_list, searched_item):
+def search_for_item(data_list, searched_item):
 
     searching = True
     while searching:
@@ -65,7 +65,7 @@ def search_for_item(hashed_data, data_list, searched_item):
                 try:
                     selected = int(user_input)
                     if selected <= len(possible_items):
-                        return hashed_data.retrieve(possible_items[selected-1])
+                        return possible_items[selected-1]
                     else:
                         newline()
                         print("It seems that didn't result in what you were looking for.")
@@ -136,7 +136,101 @@ def show_book(selected_book, book_hashmap, author_hashmap, genre_hashmap):
                 count += 1
         lengths.append(count)
 
-    print_book(selected_book, selection_list, lengths, genre_list[:best_genres])
+    next_book = print_book(selected_book, selection_list, lengths, genre_list[:best_genres])
+    if next_book is not None:
+        show_book(book_hashmap.retrieve(selection_list[next_book]), book_hashmap, author_hashmap, genre_hashmap)
+
+def show_author(selected_author, book_hashmap, author_hashmap, genre_hashmap):
+    
+    books_by_current_author = author_hashmap.retrieve(selected_author)
+    books_by_current_author = mergesort(books_by_current_author)
+
+    data_list = []
+    for book in books_by_current_author:
+        data_list.append(book[0])
+
+    if len(data_list) <= 0:
+            newline()
+            print("No results found.")
+        
+    else: #len(possible_items) <= 10:
+        newline()
+        if len(data_list) == 1:
+            print("This author has only pubished one book:")
+        else:
+            print(f"This author has published {len(data_list)} books:")
+
+        number_of_pages = math.ceil(len(data_list)/10)
+        current_page = 1
+
+        selecting_result = True
+        while selecting_result:
+            
+            user_input = list_page(data_list[10*(current_page-1):10*(current_page)], current_page, number_of_pages, "looking at author or genre")
+            try:
+                selected = int(user_input)
+                if selected <= len(data_list):
+                    show_book(book_hashmap.retrieve(data_list[selected-1]), book_hashmap, author_hashmap, genre_hashmap)
+                    selecting_result = False
+                else:
+                    newline()
+                    print("It seems that didn't result in what you were looking for.")
+                    selecting_result = False
+            except:
+                if current_page < number_of_pages and user_input == "next":
+                    current_page += 1
+                elif current_page > 1 and user_input == "back":
+                    current_page -= 1
+                else:
+                    newline()
+                    print("It seems that did not result in what you were looking for.")
+                    selecting_result = False
+
+def show_genre(selected_genre, book_hashmap, author_hashmap, genre_hashmap):
+    
+    books_in_current_genre = genre_hashmap.retrieve(selected_genre)
+    books_in_current_genre = mergesort(books_in_current_genre)
+
+    data_list = []
+    for book in books_in_current_genre:
+        data_list.append(book[0])
+
+    if len(data_list) <= 0:
+            newline()
+            print("No results found.")
+        
+    else: #len(possible_items) <= 10:
+        newline()
+        if len(data_list) == 1:
+            print("There is one book in this genre:")
+        else:
+            print(f"There are {len(data_list)} books in this genre:")
+
+        number_of_pages = math.ceil(len(data_list)/10)
+        current_page = 1
+
+        selecting_result = True
+        while selecting_result:
+            
+            user_input = list_page(data_list[10*(current_page-1):10*(current_page)], current_page, number_of_pages, "looking at author or genre")
+            try:
+                selected = int(user_input)
+                if selected <= len(data_list):
+                    show_book(book_hashmap.retrieve(data_list[selected-1]), book_hashmap, author_hashmap, genre_hashmap)
+                    selecting_result = False
+                else:
+                    newline()
+                    print("It seems that didn't result in what you were looking for.")
+                    selecting_result = False
+            except:
+                if current_page < number_of_pages and user_input == "next":
+                    current_page += 1
+                elif current_page > 1 and user_input == "back":
+                    current_page -= 1
+                else:
+                    newline()
+                    print("It seems that did not result in what you were looking for.")
+                    selecting_result = False
 
 starting_message()
 
@@ -183,16 +277,18 @@ user_active = True
 
 while user_active:
     if user_input == "book":
-        found_book = (search_for_item(hashedBooks, searchListBooks, "book"))
-        show_book(found_book, hashedBooks, hashedAuthors, hashedGenres)
+        found_book = search_for_item(searchListBooks, "book")
+        show_book(hashedBooks.retrieve(found_book), hashedBooks, hashedAuthors, hashedGenres)
         user_active = keep_searching()
     elif user_input == "author":
-        print(search_for_item(hashedAuthors, searchListAuthors, "author/s"))
+        found_author = search_for_item(searchListAuthors, "author/s")
+        show_author(found_author, hashedBooks, hashedAuthors, hashedGenres)
         user_active = keep_searching()
     elif user_input == "genre":
-        print(search_for_item(hashedGenres, searchListGenres, "genre"))
+        found_genre = search_for_item(searchListGenres, "genre")
+        show_genre(found_genre, hashedBooks, hashedAuthors, hashedGenres)
         user_active = keep_searching()
     elif user_input == "quit":
         user_active = False
     else:
-        user_input = input("I didn't quite catch that, please type your choice again: ").lower()
+        user_input = input("I didn't quite catch that, please type your choice again: ").lower() 

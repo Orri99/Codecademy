@@ -24,7 +24,10 @@ def list_page(result_list, current_page, number_of_pages, searched_item):
     newline()
     print(f"Page {current_page}/{number_of_pages}")
     newline()
-    print(f"If any of these results are the {searched_item} you are looking for,\nor if any of them interest you please type their corresponding number,")
+    if searched_item == "looking at author or genre":
+        print(f"If any of these titles interest you please type their corresponding number,")
+    else:
+        print(f"If any of these results are the {searched_item} you are looking for,\nor if any of them interest you please type their corresponding number,")
     if current_page < number_of_pages:
         print("if you want to see more results type \"next\",")
     if current_page > 1:
@@ -65,4 +68,17 @@ def print_book(selected_book, selection_list, lengths, genres):
             for index in range(0,lengths[idx]):
                 print(str(selection_item+1) + ". " + selection_list[selection_item])
                 selection_item += 1
+    newline()
+
+    print("If you want to take a closer look at any of these titles type in their respective number,")
+    user_input = input("otherwise type anything else: ")
+    try:
+        selected = int(user_input)
+        selected -= 1
+        if selected >= 0 and selected < selection_item:
+            return selected
+        else:
+            return None
+    except:
+        return None
             
