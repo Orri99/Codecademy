@@ -1,7 +1,8 @@
 import csv
 import math
 from hashmap import Hashmap
-from prints import newline, starting_message, list_page
+from prints import newline, starting_message, list_page, print_book
+from sort_algos import bubblesort, mergesort
 
 hashedBooks = Hashmap(10000) # Number picked arbitrarily
 hashedAuthors = Hashmap(10000)
@@ -34,10 +35,6 @@ def search_for_item(hashed_data, data_list, searched_item):
     while searching:
         newline()
         user_input = input(f"Please type the name of the {searched_item} your are looking for: ")
-
-        #item_data = hashed_data.retrieve(user_input)
-        #if item_data is not None:
-            #return item_data
     
         possible_items = []
         for index in range(len(data_list)):
@@ -67,12 +64,12 @@ def search_for_item(hashed_data, data_list, searched_item):
                 user_input = list_page(possible_items[10*(current_page-1):10*(current_page)], current_page, number_of_pages, searched_item)
                 try:
                     selected = int(user_input)
-                    if selected < len(possible_items):
+                    if selected <= len(possible_items):
                         return hashed_data.retrieve(possible_items[selected-1])
                     else:
                         newline()
-                        print("It seems that did not result in what you were looking for.")
-                        searching = keep_searching()
+                        print("It seems that didn't result in what you were looking for.")
+                        selecting_result = keep_searching()
                 except:
                     if current_page < number_of_pages and user_input == "next":
                         current_page += 1
@@ -81,8 +78,65 @@ def search_for_item(hashed_data, data_list, searched_item):
                     else:
                         newline()
                         print("It seems that did not result in what you were looking for.")
-                        searching = keep_searching()
+                        selecting_result = keep_searching()
 
+def show_book(selected_book, book_hashmap, author_hashmap, genre_hashmap): 
+     
+    selection_list = []
+    lengths = []
+    genre_list = []
+
+    books_by_current_author = author_hashmap.retrieve(selected_book["author"])
+    books_by_current_author = bubblesort(books_by_current_author)
+
+    if len(books_by_current_author) <= 5:
+        best_by_author = len(books_by_current_author) - 1 # -1 because the selected book is in there too
+    else:
+        best_by_author = 5
+
+    for genre in selected_book["genres"]:
+        genre_list.append([genre, len(genre_hashmap.retrieve(genre))])
+    genre_list = mergesort(genre_list)
+
+    if len(genre_list) < 3:
+        best_genres = len(genre_list)
+    else:
+        best_genres = 3 
+
+    count = 0
+    if selected_book["series"] is not None:
+        for book in books_by_current_author:
+            if book[0] != selected_book["title"] and count < 5:
+                current_book = book_hashmap.retrieve(book[0])
+                if (current_book["series"][:-3] == selected_book["series"][:-3]) and (current_book != selected_book):
+                    selection_list.append(current_book["title"])
+                    count += 1
+            elif count == 5:
+                break
+    lengths.append(count)
+
+    count = 0
+    for index in range(0,best_by_author+1):
+        if count != 5 and books_by_current_author[index][0] != selected_book["title"]:
+            selection_list.append(books_by_current_author[index][0])
+            count += 1
+    lengths.append(count)
+
+    for index in range(0,best_genres):
+        count = 0
+        books_in_current_genre = genre_hashmap.retrieve(genre_list[index][0])
+        books_in_current_genre = mergesort(books_in_current_genre)
+        if len(books_in_current_genre) <= 5:
+            num_books = len(books_in_current_genre) - 1
+        else:
+            num_books = 5
+        for idx in range(0,num_books+1):
+            if count != 5 and books_in_current_genre[idx][0] != selected_book["title"]:
+                selection_list.append(books_in_current_genre[idx][0])
+                count += 1
+        lengths.append(count)
+
+    print_book(selected_book, selection_list, lengths, genre_list[:best_genres])
 
 starting_message()
 
@@ -128,8 +182,9 @@ user_input = input("Answer: ").lower()
 user_active = True
 
 while user_active:
-    if user_input == "book title":
-        print(search_for_item(hashedBooks, searchListBooks, "book title"))
+    if user_input == "book":
+        found_book = (search_for_item(hashedBooks, searchListBooks, "book"))
+        show_book(found_book, hashedBooks, hashedAuthors, hashedGenres)
         user_active = keep_searching()
     elif user_input == "author":
         print(search_for_item(hashedAuthors, searchListAuthors, "author/s"))
